@@ -1,0 +1,394 @@
+Create a Telegram bot called @CleoyLeoDoormanBot.
+
+The entire application must be in English, including all user-facing messages, buttons, labels, logs where appropriate, comments, and documentation.
+
+IMPORTANT:
+- The bot MUST use Telegram webhooks.
+- Do NOT use long polling.
+- Do NOT use polling-based implementations such as getUpdates.
+- The application must be suitable for deployment on Replit.
+- You are free to choose the project structure, files, libraries, framework, and implementation architecture. Do not follow a rigid folder structure. Choose whatever architecture you consider clean, reliable, maintainable, and appropriate for a webhook-based Telegram bot.
+- Focus on implementing the behavior described below exactly.
+
+==================================================
+1. BOT PURPOSE
+==================================================
+
+The bot has two main purposes:
+
+1. Automatically accept Telegram join requests for the configured channels.
+2. When a user interacts with the bot, check which official Cleo & Leo Telegram channels the user is currently subscribed to and show their subscription status.
+
+==================================================
+2. CHANNEL CONFIGURATION
+==================================================
+
+Create a central configuration containing an array of all Telegram channels for which this bot is responsible.
+
+The configuration must currently contain these two channels:
+
+Channel 1:
+- Name: Cleo's Golden Drops
+- Chat ID: -1004288272338
+- Invite link: https://t.me/+KxNZ3y3ifSZjODRk
+
+Channel 2:
+- Name: Second Channel
+- Chat ID: -1003890497500
+- Invite link: https://t.me/+FsF-05H0-Ck2ZTg0
+
+The channel list must be designed so that additional channels can easily be added in the future.
+
+For example, if I add another channel to the configuration, the bot should automatically:
+- monitor its join requests;
+- accept its join requests;
+- check user membership;
+- include it in the membership count;
+- include it in the user's channel status message;
+- create a button for it.
+
+Do not hard-code the number of channels anywhere in the application.
+
+The configuration should be the single source of truth for the channels.
+
+Each channel configuration should contain at least:
+- channel name
+- Telegram chat ID
+- invite link
+- channel URL to open the channel
+
+If a channel is private and its public URL cannot be derived reliably, use a separate channelUrl configuration field. Do not incorrectly use the invite link as the channel URL if that would produce the wrong behavior.
+
+==================================================
+3. AUTOMATIC JOIN REQUEST ACCEPTANCE
+==================================================
+
+The bot is an administrator of all configured Telegram channels.
+
+Whenever a user requests to join any configured channel through a Telegram invite link, the bot must automatically approve the join request.
+
+The bot must listen for Telegram chat join requests through the webhook.
+
+For every incoming join request:
+
+1. Identify the Telegram channel where the request was made.
+2. Check whether that channel exists in the configured channel list.
+3. If it is a configured channel, approve the join request.
+4. After the request has been successfully approved, send the user a private Telegram message.
+5. The private message must refer to the specific channel the user just joined.
+
+The bot must NOT automatically approve join requests for channels that are not configured.
+
+==================================================
+4. PRIVATE MESSAGE AFTER JOIN APPROVAL
+==================================================
+
+After successfully approving a user's join request, send the user this private message.
+
+Use Telegram HTML formatting.
+
+The exact copy must be:
+
+<b>Congratulations! 🎉</b>
+
+You have been accepted into the channel
+<a href="[CHANNEL_URL]"><b>[CHANNEL_NAME]</b></a>
+
+Come on in, you can join now! And don't forget to <b>add your reaction</b> to your favorite posts ❤️
+
+Replace:
+- [CHANNEL_URL] with the URL of the channel the user joined.
+- [CHANNEL_NAME] with the configured channel name.
+
+Under the message, add an inline button:
+
+OPEN CHANNEL
+
+The button must open [CHANNEL_URL].
+
+The message must only be sent after the join request has been successfully approved.
+
+If sending the private message fails because the user has blocked the bot, has never started the bot, or Telegram otherwise prevents the bot from messaging the user, do not crash the application. Log the error appropriately and continue operating normally.
+
+==================================================
+5. USER INTERACTION WITH THE BOT
+==================================================
+
+Currently, the bot may respond "Hello World" when a user sends a message.
+
+Remove this behavior completely.
+
+Whenever a user sends any message to @CleoyLeoDoormanBot, the bot must instead check the user's membership status for every configured Telegram channel.
+
+The check must be performed dynamically when the user interacts with the bot.
+
+Do not rely on old cached membership information.
+
+The user may join or leave channels at any time, so the bot should query Telegram for the current membership status.
+
+==================================================
+6. CHECKING USER MEMBERSHIP
+==================================================
+
+For every channel in the configuration, use the Telegram Bot API to determine whether the current user is a member of that channel.
+
+The bot should consider the appropriate Telegram member statuses that mean the user is currently a member of the channel.
+
+Users who have left, were removed, are banned, or are otherwise not currently members must be considered NOT subscribed.
+
+The bot must check every configured channel.
+
+For example, if there are currently 2 configured channels, check both.
+
+If there are later 10 configured channels, check all 10.
+
+Do not hard-code the number of membership checks.
+
+==================================================
+7. USER SUBSCRIBED TO ALL CHANNELS
+==================================================
+
+If the user is currently subscribed to every configured channel, send:
+
+🎉🎉 You are subscribed to all official Cleo & Leo Telegram channels! ❤️ Great job! 🎉
+
+Under the message, display one inline button for every configured channel.
+
+For a channel the user is subscribed to, the button text must start with:
+
+✅
+
+Example:
+
+✅ Cleo's Golden Drops
+✅ Second Channel
+
+Each button must open the corresponding channel URL.
+
+==================================================
+8. USER SUBSCRIBED TO SOME CHANNELS
+==================================================
+
+If the user is subscribed to some, but not all, configured channels, send a message dynamically showing the numbers.
+
+Use this copy:
+
+You are subscribed to [SUBSCRIBED_COUNT] out of [TOTAL_CHANNELS] Cleo & Leo Telegram channels.
+
+Subscribe now to the other [MISSING_COUNT] channels you're missing!
+
+Replace the placeholders dynamically.
+
+For example, if the user is subscribed to 1 out of 2 channels:
+
+You are subscribed to 1 out of 2 Cleo & Leo Telegram channels.
+
+Subscribe now to the other 1 channel you're missing!
+
+If the user is subscribed to 2 out of 4:
+
+You are subscribed to 2 out of 4 Cleo & Leo Telegram channels.
+
+Subscribe now to the other 2 channels you're missing!
+
+Handle singular/plural grammar correctly where appropriate.
+
+Under the message, display one inline button for every configured channel.
+
+For a channel the user IS subscribed to:
+
+✅ [Channel Name]
+
+For a channel the user IS NOT subscribed to:
+
+⚠️➡️ [Channel Name]
+
+Example:
+
+✅ Cleo's Golden Drops
+⚠️➡️ Second Channel
+⚠️➡️ Third Channel
+✅ Fourth Channel
+
+Each button must open the corresponding channel URL.
+
+==================================================
+9. USER SUBSCRIBED TO ZERO CHANNELS
+==================================================
+
+If the user is not subscribed to any configured channel, send:
+
+Subscribe to the official Cleo & Leo Telegram channels!
+
+Under the message, display one inline button for every configured channel.
+
+Because the user is not subscribed to any channel, every button must start with:
+
+⚠️➡️
+
+Example:
+
+⚠️➡️ Cleo's Golden Drops
+⚠️➡️ Second Channel
+
+Each button must open the corresponding channel URL.
+
+==================================================
+10. DYNAMIC BUTTONS
+==================================================
+
+The channel buttons must be generated dynamically from the configured channel array.
+
+Never hard-code individual channel buttons.
+
+For every configured channel:
+
+- If the user is subscribed: prefix the button with "✅"
+- If the user is not subscribed: prefix the button with "⚠️➡️"
+
+The number of buttons must automatically correspond to the number of configured channels.
+
+Adding a new channel to the configuration must automatically make it appear in the user's response.
+
+==================================================
+11. WEBHOOK ONLY
+==================================================
+
+The bot MUST operate exclusively through Telegram webhooks.
+
+Do NOT use:
+- long polling;
+- getUpdates;
+- polling loops;
+- any polling-based Telegram bot implementation.
+
+The application must expose an HTTP endpoint that Telegram can use as the webhook endpoint.
+
+Configure the bot so that Telegram sends updates to the application's webhook.
+
+The implementation should handle Telegram webhook updates correctly, including:
+- normal user messages;
+- chat join requests;
+- any other update types required for the functionality described above.
+
+The webhook URL and bot token must be handled through environment variables or appropriate deployment configuration.
+
+Do not hard-code the bot token.
+
+==================================================
+12. ENVIRONMENT VARIABLES / SECRETS
+==================================================
+
+The Telegram bot token must be stored securely as an environment variable.
+
+Do not place the real bot token directly in source code.
+
+Use an environment variable such as:
+
+BOT_TOKEN
+
+If additional environment variables are necessary for the webhook implementation or deployment, create and document them appropriately.
+
+==================================================
+13. ERROR HANDLING
+==================================================
+
+The bot must be robust.
+
+Handle Telegram API errors gracefully.
+
+Examples include:
+- the bot is not an administrator of a configured channel;
+- the bot cannot approve a join request;
+- Telegram cannot retrieve a user's membership status;
+- the user has blocked the bot;
+- the user cannot receive private messages;
+- a configured channel no longer exists;
+- Telegram temporarily returns an API error;
+- malformed or unexpected webhook updates.
+
+One failed operation must not crash the entire bot.
+
+Errors should be logged clearly for debugging.
+
+Do not expose technical errors, stack traces, API errors, or internal information to normal users.
+
+==================================================
+14. SECURITY
+==================================================
+
+Do not expose the Telegram bot token.
+
+Validate webhook requests appropriately if the chosen Telegram library/framework supports secure webhook verification.
+
+Do not trust arbitrary user-provided data.
+
+Escape or safely handle dynamic values when inserting them into Telegram HTML messages.
+
+Make sure dynamically generated channel URLs and names cannot break Telegram's HTML formatting.
+
+==================================================
+15. IMPORTANT BEHAVIOR
+==================================================
+
+The bot must behave as follows:
+
+USER REQUESTS TO JOIN A CONFIGURED CHANNEL:
+
+User requests to join
+→ Telegram sends the join request update to the bot
+→ Bot recognizes the configured channel
+→ Bot approves the join request
+→ User is accepted into the channel
+→ Bot sends the user the private congratulations message
+→ Message contains an "OPEN CHANNEL" button
+
+USER SENDS ANY MESSAGE TO THE BOT:
+
+User sends a message
+→ Bot checks every configured channel
+→ Bot determines which channels the user belongs to
+→ Bot counts subscribed channels
+→ Bot counts missing channels
+→ Bot sends the appropriate English message
+→ Bot displays one button for every configured channel
+→ Joined channels show "✅"
+→ Not joined channels show "⚠️➡️"
+
+==================================================
+16. REMOVE HELLO WORLD
+==================================================
+
+There must be no remaining "Hello World" response.
+
+Replace any existing placeholder message/handler with the membership-checking behavior described above.
+
+==================================================
+17. IMPLEMENTATION QUALITY
+==================================================
+
+Build this as a complete working Telegram bot, not as a mockup or conceptual example.
+
+You are free to decide:
+- project structure;
+- file organization;
+- Telegram library;
+- HTTP framework;
+- webhook implementation;
+- helper functions;
+- service architecture;
+- error-handling architecture.
+
+Choose the approach that is most reliable and appropriate for a production-style Telegram webhook bot running on Replit.
+
+Keep the implementation simple where possible, but make sure it is robust and easy to extend.
+
+Do not introduce unnecessary features that were not requested.
+
+Do not create a long-polling implementation.
+
+Do not leave the core functionality as TODOs or placeholders.
+
+Before finishing, make sure the complete flow works conceptually from Telegram webhook update → processing → Telegram API response.
+
+The final application must be entirely in English from the user's perspective.

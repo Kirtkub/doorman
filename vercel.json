@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "pages/api/webhook.ts": {
+      "maxDuration": 10
+    },
+    "pages/api/set-webhook.ts": {
+      "maxDuration": 10
+    }
+  }
+}
