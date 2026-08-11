@@ -45,7 +45,7 @@ export const CHANNELS: TelegramChannel[] = [
   },
   {
     name: "Lobby",
-    chatId: -1003890497500,
+    chatId: -1001834111990,
     inviteLink: "https://t.me/+iVzOBeu81ugzODM8",
     inviteLinkLabel: "Lobby invite",
     channelUrl: "https://t.me/+iVzOBeu81ugzODM8",
