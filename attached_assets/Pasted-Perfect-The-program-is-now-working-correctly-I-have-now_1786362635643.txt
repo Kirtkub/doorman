@@ -1,0 +1,83 @@
+Perfect!
+
+The program is now working correctly.
+
+I have now added the following secrets:
+
+UPSTASH_REDIS_REST_URL
+UPSTASH_REDIS_REST_TOKEN
+
+Use the Upstash Redis database to store users and channel joins.
+
+Every time a user joins a channel, store the following information:
+
+* User ID
+* User first name
+* User last name
+* User username
+* User language
+* Date and time when the user joined the channel
+* Name of the channel they joined
+* Invite link used to join the channel
+* Name/label of the invite link used to join the channel
+
+⸻
+
+Modify the Front Page
+
+Keep the “Set Webhook” button, but make it smaller and move it to the top-right corner.
+
+The front page should become a statistics dashboard.
+
+Load the statistics data from Upstash Redis every time the page is refreshed.
+
+Do not use long polling.
+
+Optimize the implementation to minimize the number of calls to Upstash Redis and avoid unnecessary requests.
+
+Filters
+
+Visitors to the front page must be able to select:
+
+1. The channel for which they want to view statistics.
+2. The time period:
+    * Last 24 hours
+    * Last 7 days
+    * Last 14 days
+    * Last 30 days
+    * All time
+
+⸻
+
+Line Chart
+
+Create a line chart showing the number of users who joined the selected channel during the selected time period.
+
+There must be:
+
+* One line for each invite link
+* One additional line showing the total number of users
+
+Users must be able to select and deselect individual invite links to show or hide their lines on the chart.
+
+Time intervals
+
+The chart must use the following time intervals depending on the selected period:
+
+* 24 hours: 1-hour intervals
+* 7 days: 12-hour intervals
+* 14 days: 1-day intervals
+* 30 days: 1-day intervals
+* All time: 1-day intervals
+
+⸻
+
+Pie Chart — User Languages
+
+Create a pie chart showing the languages of users who joined through the selected invite link.
+
+The visitor must be able to select an invite link and see the language distribution of the users who joined using that specific link.
+
+If a language represents less than 5% of the total users, group it into a single category called “Other”.
+
+The statistics and charts should update automatically whenever the visitor changes the selected channel, time period, or invite link.

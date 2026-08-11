@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { findChannel, CHANNELS, type TelegramChannel } from "../../lib/channels";
 import { escapeHtml, telegramApi } from "../../lib/telegram";
+import { recordJoinEvent } from "../../lib/redis";
 
 type MembershipResult = {
   channel: TelegramChannel;
@@ -27,7 +28,14 @@ async function checkMembership(userId: number, channel: TelegramChannel): Promis
 
 async function handleJoinRequest(joinRequest: {
   chat?: { id: number };
-  from?: { id: number };
+  from?: {
+    id: number;
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+    language_code?: string;
+  };
+  invite_link?: { invite_link?: string; name?: string };
 }) {
   const channel = joinRequest.chat && findChannel(joinRequest.chat.id);
   const userId = joinRequest.from?.id;
@@ -41,6 +49,23 @@ async function handleJoinRequest(joinRequest: {
     chat_id: channel.chatId,
     user_id: userId,
   });
+
+  try {
+    await recordJoinEvent({
+      userId,
+      firstName: joinRequest.from?.first_name || "",
+      lastName: joinRequest.from?.last_name || "",
+      username: joinRequest.from?.username || "",
+      language: joinRequest.from?.language_code || "Unknown",
+      joinedAt: new Date().toISOString(),
+      channelId: channel.chatId,
+      channelName: channel.name,
+      inviteLink: joinRequest.invite_link?.invite_link || channel.inviteLink,
+      inviteLinkLabel: joinRequest.invite_link?.name || channel.inviteLinkLabel,
+    });
+  } catch (error) {
+    console.error(`Join approved, but Redis event recording failed for user ${userId}`, error);
+  }
 
   const channelName = escapeHtml(channel.name);
   const channelUrl = escapeHtml(channel.channelUrl);

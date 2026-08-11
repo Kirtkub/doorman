@@ -7,6 +7,8 @@ A webhook-only Telegram bot for Cleo & Leo channels, configured to run on Replit
 - Automatically approves join requests for configured channels
 - Checks current membership in every configured channel when messaged
 - Generates channel buttons dynamically from one central configuration
+- Records approved join requests in Upstash Redis
+- Provides a join statistics dashboard with channel, period, invite-link, and language filters
 - Uses Telegram webhooks only; there is no polling or `getUpdates`
 
 ## Setup
@@ -19,7 +21,11 @@ npm install
 
 ### 2. Configure the bot token
 
-Add `TELEGRAM_BOT_TOKEN` as a Replit Secret. Never commit the token to source control.
+Add these environment variables to the deployment. Never commit their values to source control.
+
+- `TELEGRAM_BOT_TOKEN`
+- `UPSTASH_REDIS_REST_URL`
+- `UPSTASH_REDIS_REST_TOKEN`
 
 The bot must be an administrator of every configured channel with permission to approve join requests and inspect membership.
 
@@ -46,6 +52,14 @@ POST https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook
 ```
 
 The app's **Set Webhook** button constructs the webhook URL from the incoming HTTPS request and configures it automatically.
+
+### Dashboard data
+
+The front page reads aggregate data from `GET /api/stats`. Approved join requests
+are stored as JSON members in the Upstash sorted set `cleo_leo:join_events`,
+using the join timestamp as the score. The dashboard reads the selected period
+in one Redis request and aggregates chart buckets and language percentages
+server-side.
 
 ## Project structure
 
