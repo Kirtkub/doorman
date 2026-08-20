@@ -37,6 +37,13 @@ export const CHANNELS: TelegramChannel[] = [
     channelUrl: "https://t.me/+wmECtm-WcUA3NjIx",
   },
   {
+    name: "Femdom Spanking",
+    chatId: -1003925587760,
+    inviteLink: "https://t.me/+OeWERchpGcc5NjI8",
+    inviteLinkLabel: "Femdom Spanking",
+    channelUrl: "https://t.me/+OeWERchpGcc5NjI8",
+  },
+  {
     name: "Cleo's Golden Drops",
     chatId: -1004288272338,
     inviteLink: "https://t.me/+KxNZ3y3ifSZjODRk",
